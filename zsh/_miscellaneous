@@ -1,0 +1,35 @@
+##########
+#####
+##
+# Miscellaneous
+##
+#####
+##########
+watch=all                       # watch all logins
+logcheck=30                     # every 30 seconds
+WATCHFMT="%n from %M has %a tty%l at %T %W"
+
+setopt auto_cd  # if command is a path, cd into it
+cdpath=($HOME/Documents;)
+setopt auto_remove_slash
+setopt chase_links
+setopt extended_glob
+setopt glob_dots
+setopt check_jobs
+setopt notify
+setopt interactive_comments
+setopt print_exit_value
+unsetopt beep
+unsetopt bg_nice
+unsetopt clobber
+unsetopt ignore_eof
+unsetopt hup
+unsetopt list_beep
+unsetopt rm_star_silent
+setxkbmap -option compose-ralt
+print -Pn "\e]0; %n@%M: %~\a"
+
+autoload -U tetris
+
+# vim: set ft=zsh nowrap textwidth=0 :
+

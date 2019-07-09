@@ -1,0 +1,17 @@
+export PROXY_HOST="proxytz2"
+export PROXY_PORT="80"
+export PROXY_USER="harsh.gupta"
+export PROXY_PASS="LuckyKab00tar9#"
+export PROXY_PASS_E="LuckyKab00tar9%23"
+
+export http_proxy="http://$PROXY_USER:$PROXY_PASS_E@$PROXY_HOST:$PROXY_PORT"
+export https_proxy=$http_proxy
+export HTTP_PROXY=$http_proxy
+export HTTPS_PROXY=$http_proxy
+
+export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
+export NO_PROXY=$no_proxy
+# export http_proxy=""
+# export https_proxy=""
+
+# vim: set ft=zsh nowrap textwidth=0 :

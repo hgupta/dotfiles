@@ -1,0 +1,47 @@
+##########
+#####
+##
+# keybindings
+##
+#####
+##########
+
+bindkey -e  # emacs
+bindkey '^b'      backward-word           # Ctrl+b
+bindkey '^e'      forward-word            # Ctrl+e
+bindkey '\e[2~'   overwrite-mode          # Insert
+bindkey '^R'      history-incremental-pattern-search-backward
+
+# kill line
+bindkey '^[[3~'   kill-line               # Del
+bindkey '^[[3;2~' backward-kill-line      # S-Del
+
+# open editor to edit long command
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+
+# In menu completion, Return will accept current selected match
+# bindkey -M menuselect '^M' .accept-line
+
+# shift-tab : go backward in menu (invert of tab)
+# bindkey '^[[Z' reverse-menu-complete
+
+# kill line
+# bindkey '^[[3~' kill-line
+# bindkey '^[[3;2~' backward-kill-line
+
+# do history expansion
+# bindkey ' ' magic-space
+
+# start typing + [Up-Arrow] - fuzzy find history forward
+# autoload -U up-line-or-beginning-search
+# zle -N up-line-or-beginning-search
+# bindkey "^[[A" up-line-or-beginning-search
+
+# start typing + [Down-Arrow] - fuzzy find history backward
+# autoload -U down-line-or-beginning-search
+# zle -N down-line-or-beginning-search
+# bindkey "^[[B" down-line-or-beginning-search
+
+# vim: set ft=zsh nowrap textwidth=0 :

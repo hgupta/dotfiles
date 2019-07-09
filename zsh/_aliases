@@ -1,0 +1,61 @@
+alias ..='cd ..'
+alias ...='cd ../..'
+alias .3='cd ../../..'
+alias .4='cd ../../../..'
+alias .5='cd ../../../../..'
+alias ~='cd ~'
+# alias -- -='cd -'
+
+color_flag=''
+if which dircolors &> /dev/null; then
+  color_flag='--color=auto'
+fi
+
+alias ls='ls -Flh $color_flag --group-directories-first'
+alias la='ls -lhA $color_flag'
+alias lr='ls -lR $color_flag'
+alias lf='ls -lA $color_flag | grep "^-"'
+alias l.f='ls -l $color_flag .* | grep "^-"'
+alias ld='ls -lA $color_flag | grep "^d"'
+alias l.d='ls -lA $color_flag .* | grep "^d"'
+alias links='ls -lA $color_flag | grep "^l"'
+
+alias fd='find . -type d -name'
+alias ff='find . -type f -name'
+
+alias h='history'
+alias hgrep='history | grep --color=auto'
+
+alias lgrep='ls -l | grep --color=auto'
+alias lagrep='ls -lA | grep --color=auto'
+alias sgrep='grep -R -n -H -C 5 --color=auto --exclude-dir={.git,.svn,.tldr,node_modules,Trash,vendor}'
+
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias ln='ln -iv'
+alias lns='ln -siv'
+alias mkdir='mkdir -v'
+alias rm='rm -i'
+alias rmf='rm -rf'
+
+alias p='ps axo pid,user,pcpu,comm'
+alias pgrep='ps axo pid,user.pcpu,comm | grep'
+
+alias sizeof='wget --no-config --spider'
+
+alias timer='echo "Timer started. Stop with Ctrl-D." && date "+%a, %d %b %H:%M:%S" && time cat && date "+%a, %d %b %H:%M:%S"'
+alias weather='curl -s "https://wttr.in/New%20Delhi?m2" | sed -n "1,27p"'
+
+# alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
+
+alias df='df -h'  # Disk free in GB
+alias du='du -h -c'  # Disk usage by directory
+
+alias servethis='python -m SimpleHTTPServer'
+alias pycclean='find . -name "*.pyc" -exec rm {} \; && find . -name "__pycache__" exec rm -rf {} \;'
+
+# curl for useragents
+alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""
+alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.0 (.NET CLR 3.5.30729)\""
+
+# vim: set ft=zsh nowrap textwidth=0 :

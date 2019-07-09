@@ -1,0 +1,40 @@
+##########
+#####
+##
+# Basic settings
+##
+#####
+##########
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+
+export TERM=xterm-256color tmux
+
+export PATH="$HOME/neovim/bin:$PATH"
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+autoload -U colors zsh-mime-setup select-word-style
+colors
+zsh-mime-setup
+select-word-style bash
+
+# fpath=($HOME/.zsh $fpath)
+# autoload $(ls $HOME/.zsh)
+# fpath=(~/.zsh/functions $fpath)
+# autoload $(ls ~/.zsh/functions)
+
+##########
+#####
+##
+# pushd
+##
+#####
+##########
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushd_silent
+setopt pushd_to_home
+
+# vim: set ft=zsh nowrap textwidth=0 :

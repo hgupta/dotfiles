@@ -1,0 +1,21 @@
+function source_if_exists() {
+  if [[ -s $1 ]]; then
+    source $1
+  fi
+}
+
+source_if_exists $HOME/.zprofile
+source_if_exists $HOME/.zsh/_basics
+source_if_exists $HOME/.zsh/_keybindings
+source_if_exists $HOME/.zsh/_history
+source_if_exists $HOME/.zsh/_autocomplete
+source_if_exists $HOME/.zsh/_aliases
+source_if_exists $HOME/.zsh/_functions
+source_if_exists $HOME/.zsh/_languages
+source_if_exists $HOME/.zsh/_proxy
+source_if_exists $HOME/.zsh/_vcs
+source_if_exists $HOME/.zsh/_miscellaneous
+source_if_exists $HOME/.zsh/_prompt
+source_if_exists $HOME/.zsh/zsh.local
+
+# vim: set ft=zsh nowrap textwidth=0 :

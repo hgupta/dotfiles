@@ -1,0 +1,62 @@
+##########
+#####
+##
+# Completion
+##
+#####
+##########
+autoload -U compinit
+compinit
+zmodload -i zsh/complist
+setopt hash_list_all
+setopt completealiases
+setopt always_to_end
+setopt complete_in_word
+setopt correct
+setopt list_ambiguous
+
+zstyle ':completion::complete:*' use-cache 1                  # completion caching, rehash to clear
+zstyle ':completion::complete:*' cache-path $HOME/.zsh/cache
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'     # case insensitive
+zstyle ':completion:*' menu select=2                          # menu if number of items > 2
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*::::' completer _expand _complete _ignored _approximate  # list of completers
+
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format $'\e[00;34m%d'
+zstyle ':completion:*:messages' format $'\e[00;31m%d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:manuals' separate-sections true
+
+zstyle ':completion:*:processes' command 'ps -au$USER'
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#)*=29=34"
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:killall:*' force-list always
+
+users=($USER root)
+zstyle ':completion:*' users $users
+
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' list-prompt '%SAt %p: Hit TAB for more, or a character to insert%s'
+
+# generic completion with --help
+compdef _gnu_generic gcc
+compdef _gnu_generic gdb
+
+expand-or-complete-with-dots() {
+  # toggle line-wrapping off and back on again
+  [[ -n "$terminfo[rmam]" && -n "$terminfo[smam]" ]] && echoti rmam
+  print -Pn "%{%F{red}......%f%}"
+  [[ -n "$terminfo[rmam]" && -n "$terminfo[smam]" ]] && echoti smam
+
+  zle expand-or-complete
+  zle redisplay
+}
+zle -N expand-or-complete-with-dots
+bindkey "^I" expand-or-complete-with-dots
+
+zstyle :compinstall filename "$HOME/.zshrc"
+
+# vim: set ft=zsh nowrap textwidth=0 :
