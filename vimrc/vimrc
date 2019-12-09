@@ -1,0 +1,161 @@
+setglobal termencoding=utf-8 fileencodings=
+scriptencoding utf-8
+set encoding=utf-8
+
+autocmd BufNewFile,BufRead  *   try
+autocmd BufNewFile,BufRead  *       set encoding=utf-8
+autocmd BufNewFile,BufRead  *   endtry
+
+if has('autocmd')
+  filetype plugin indent on
+endif
+
+syntax on
+if has('syntax') && !exists('g:syntax_on')
+  syntax enable
+endif
+
+set nocompatible
+
+if has('nvim')
+  set guicursor=
+endif
+
+let mapleader = '\'
+let g:mapleader = '\'
+" let maplocalleader = '`'
+
+" Timeouts
+if !has('nvim') && &ttimeoutlen == -1
+  set timeout
+  set timeoutlen=300  " mapping timeout
+  set ttimeout
+  set ttimeoutlen=500  " keycode timeout
+endif
+
+set noshowmode  " Do not show mode, have statusbar
+set showtabline=1  " Show tabbar if 2 or more tabs present
+set ffs=unix,mac,dos  " unix as default file format
+set history=500  " Sets how many lines of history VIM has to remember
+set ttyfast  " Assume Fast terminal connection
+set viewoptions=folds,options,cursor,unix,slash  " UNIX/Windows compatibility
+set hidden  " Allow buffer switching without saving
+set autoread  " autoreload files when saved from external source
+set equalalways  " all windows size equal
+
+" Turn off backup
+set nobackup
+set nowb
+set noswapfile
+
+" Scrolling
+set scrolloff=7  " Always show content after scroll
+set scrolljump=1  " minimum number of lines to scroll
+
+" Default splitting
+set splitright
+set splitbelow
+
+" Disable bells
+set noerrorbells
+set novisualbell
+set t_vb=
+
+set laststatus=2
+
+set noshowcmd  " don't show last command
+
+" treat long lines as break lines
+nnoremap <Down> gj
+nnoremap <Up> gk
+nnoremap j gj
+nnoremap k gk
+
+" navigating tabs and buffers
+nnoremap <S-Left> :bprev<CR>
+nnoremap <S-Right> :bnext<CR>
+nnoremap <C-Left> :tabprev<CR>
+nnoremap <C-Right> :tabnext<CR>
+
+" better regex & search
+set magic
+nnoremap / /\v
+vnoremap / /\v
+nnoremap ? ?\v
+vnoremap ? ?\v
+nnoremap <leader>/s :s/\v
+xnoremap <leader>/s :s/\v
+
+" better substitute
+nnoremap <leader>s :%s//gc<LEFT><LEFT><LEFT>
+xnoremap <leader>s :s//gc<LEFT><LEFT><LEFT>
+
+" re-select visual block after indent
+vnoremap < <gv
+vnoremap > >gv
+
+" remove search highlight
+nnoremap <silent><leader>nhl :nohlsearch<CR>
+
+set number relativenumber " show line number
+set cursorline  " highlight line where cursor is
+set showmatch  " show matching brackets
+set foldcolumn=2  " show fold gutter
+
+" Display as much as possible
+set display+=lastline
+set lazyredraw
+
+set backspace=indent,eol,start  " how backspace key should work
+" tab/space settings
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set shiftround
+set expandtab
+" set wrap linebreak
+set showbreak=↪
+" set textwidth=79
+
+" Indentation
+set autoindent
+set copyindent
+set smartindent
+
+" if v:version > 703 || v:version == 703 && has('patch541')
+"   set formatoptions+=j  " Delete comment char when joining lines
+"   set formatoptions+=t
+"   set formatoptions+=c
+"   set formatoptions+=w
+"   set formatoptions+=n
+"   set formatoptions+=2
+" endif
+
+" Showing non-printable characters
+" set listchars=tab:¦·,trail:·,eol:¬,nbsp:␣,extends:»,precedes:«,space:·
+exec "set listchars=tab:\uBB\uB7,trail:\uB7,eol:\uAC,nbsp:\u2423,extends:\uBB,precedes:\uAB,space:\uB7"
+
+if has('conceal')
+  set conceallevel=1
+  exec "set listchars+=conceal:\u25B3"
+endif
+set list
+
+" Folding
+set foldmethod=syntax
+set foldnestmax=10
+set foldenable
+set foldlevelstart=99
+
+" Searching
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+
+set path+=**  " search for files in current & child directories
+
+set modeline
+set modelines=2
+
+" vim:set ft=vim tabstop=2 shiftwidth=2 softtabstop=2
