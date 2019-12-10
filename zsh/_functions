@@ -1,14 +1,24 @@
-aptc() {
+aptc () {
   sudo apt clean
   sudo apt autoclean
   sudo apt autoremove
 }
 
-mkd() {
+update () {
+  sudo apt update && sudo apt upgrade
+  aptc
+}
+
+mkd () {
   mkdir -p "$@" && cd "$@"
 }
 
-extract() {
+trim () {
+  local r=$(echo $@ | awk '{ $1 = $1 }; 1')
+  echo "$r"
+}
+
+extract () {
   if [ -f $1 ]; then
     case $1 in
       *.tar.bz2)  tar xjf $1    ;;
@@ -21,7 +31,7 @@ extract() {
       *.tgz)      tar xzf $1    ;;
       *.zip)      unzip $1      ;;
       *.Z)        uncompress $1 ;;
-      *.7z)       7zr e $1      ;;
+      *.7z)       7zr x $1      ;;
       *)          echo "'$1' cannot be extracted via extract()" ;;
     esac
   else
@@ -29,11 +39,11 @@ extract() {
   fi
 }
 
-killit() {
+killit () {
   ps aux | grep -v "grep" | grep "$@" | awk '{ print $2 }' | xargs kill -9
 }
 
-skillit() {
+skillit () {
   ps aux | grep -v "grep" | grep "$@" | awk '{ print $2 }' | xargs sudo kill -9
 }
 
@@ -46,10 +56,34 @@ sportkill() {
 }
 
 ghget () {
-  echo $@, $1, $2
+  URL=$(trim $1)
+  DIR=$(trim $2)
+
+  USER=$(echo $URL | tr "/" " " | awk '{ print $1 }')
+  REPO=$(echo $URL | tr "/" " " | awk '{ print $2 }')
+
+  if [ "$#" -e 2 ]; then
+    mkd "$HOME/$DIR/github.com/$USER"
+  fi
+
+  git clone "https://github.com/$URL"
+  cd $REPO
+}
+
+ghcodes () {
+  ghget $@ 'codes'
   # USER=$(echo $@ | tr "/" " " | awk '{ print $1 }')
   # REPO=$(echo $@ | tr "/" " " | awk '{ print $2 }')
-  # mkd "$HOME/Documents/code/github.com/$USER"
+  # mkd "$HOME/codes/github.com/$USER"
+  # git clone "https://github.com/$@"
+  # cd $REPO
+}
+
+ghsoft () {
+  ghget $@ 'softwares'
+  # USER=$(echo $@ | tr "/" " " | awk '{ print $1 }')
+  # REPO=$(echo $@ | tr "/" " " | awk '{ print $2 }')
+  # mkd "$HOME/softwares/github.com/$USER"
   # git clone "https://github.com/$@"
   # cd $REPO
 }
@@ -58,8 +92,101 @@ ips () {
   ifconfig | grep "inet " | awk '{ print $2 }'
 }
 
-name () {
+deets () {
   echo "$(whoami) @ $(hostname)"
+}
+
+safe-add-apt-source () {
+  SRC=$(trim $1)
+  FLE=$(trim $2)
+
+  sudo sh -c "echo '$SRC' > /etc/apt/sources.list.d/$FLE"
+}
+
+safe-add-apt-key () {
+  KEY=$(trim $@)
+  PTH="/tmp/$KEY"
+  gpg --keyserver keyserver.ubuntu.com --recv $KEY && gpg --export --armor $KEY > $PTH
+  cat $PTH | sudo apt-key add -
+  rm -f $PTH
+}
+
+json () {
+  arg=$(trim $1)
+  if [ -z $arg ]; then
+    echo "Really?!? No input!"
+    return
+  fi
+
+  indent=4
+  if [ ! -z $2 ]; then
+    indent=$2
+  fi
+
+  if exists node; then
+    cmd="console.log(JSON.stringify(JSON.parse(process.argv[1]), null, $indent))"
+    if [ -f $arg ]; then
+      cat $arg | xargs -0 node -e $cmd
+    elif [[ $arg =~ ^https?:\/\/ ]]; then
+      curl -sS $arg | xargs -0 node -e $cmd
+    else
+      echo $arg | xargs -0 node -e $cmd
+    fi
+  else
+    cmd="import json, sys; print(json.dumps(json.loads(sys.stdin.read()), indent=$indent));"
+    if [ -f $arg ]; then
+      cat $arg | python -c $cmd
+      # python -m json.tool $(trim $arg)
+    elif [[ $arg =~ ^https?:\/\/ ]]; then
+      curl -sS $arg | python -c $cmd
+    else
+      echo $arg | python -c $cmd
+      # echo $arg | python -m json.tool
+    fi
+  fi
+}
+
+isjson () {
+  arg=$(trim $1)
+
+  if [ -z $arg ]; then
+    echo "Really?!? No input!"
+    return
+  fi
+
+  if exists node; then
+    cmd="try { JSON.parse(process.argv[1]); console.log('yes') } catch(e) { console.log('no') }"
+    if [ -f $arg ]; then
+      cat $arg | xargs -0 node -e $cmd
+    elif [[ $arg =~ ^https?:\/\/ ]]; then
+      curl -sS $arg | xargs -0 node -e $cmd
+    else
+      echo $arg | xargs -0 node -e $cmd
+    fi
+  else
+    cmd="
+import json, sys
+try:
+    json.loads(sys.stdin.read())
+except:
+    print('no')
+else:
+    print('yes')
+sys.exit(0)
+"
+    echo "second"
+    if [ -f $arg ]; then
+      cat $arg | python -c $cmd
+    elif [[ $arg =~ ^https?:\/\/ ]]; then
+      curl -sS $arg | python -c $cmd
+    else
+      echo $arg | python -c $cmd
+    fi
+  fi
+}
+
+exists() {
+  command -v "$1" > /dev/null 2>&1
 }
 
 # colorslist() {

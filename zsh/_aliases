@@ -22,9 +22,10 @@ alias links='ls -lA $color_flag | grep "^l"'
 
 alias fd='find . -type d -name'
 alias ff='find . -type f -name'
+alias fl='find . -type l -name'
 
 alias h='history'
-alias hgrep='history | grep --color=auto'
+alias hgrep='history | grep --color=auto '
 
 alias lgrep='ls -l | grep --color=auto'
 alias lagrep='ls -lA | grep --color=auto'
@@ -38,8 +39,8 @@ alias mkdir='mkdir -v'
 alias rm='rm -i'
 alias rmf='rm -rf'
 
-alias p='ps axo pid,user,pcpu,comm'
-alias pgrep='ps axo pid,user.pcpu,comm | grep'
+alias p='ps axo pid,user,pcpu,command'
+alias pgrep='ps axo pid,user,pcpu,command | grep -v "grep" | grep '
 
 alias sizeof='wget --no-config --spider'
 
@@ -51,11 +52,21 @@ alias weather='curl -s "https://wttr.in/New%20Delhi?m2" | sed -n "1,27p"'
 alias df='df -h'  # Disk free in GB
 alias du='du -h -c'  # Disk usage by directory
 
-alias servethis='python -m SimpleHTTPServer'
+alias servethis='python -m http.server'
 alias pycclean='find . -name "*.pyc" -exec rm {} \; && find . -name "__pycache__" exec rm -rf {} \;'
 
 # curl for useragents
 alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""
 alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.0 (.NET CLR 3.5.30729)\""
+
+# aliases for development
+alias vanilla-ui=". $HOME/Documents/softwares/.dotfiles/boilerplates/vanilla-ui/setup.sh "
+
+# re-run previous command with sudo
+alias please='sudo $(fc -ln -1)'
+
+alias vimdiff='nvim -d -c "norm ]c[c"'  # jump to first difference
+
+alias vi="vi -c 'set nocp nu rnu tabstop=2 shiftwidth=2 softtabstop=2 shiftround expandtab nowrap backspace=indent,eol,start'"
 
 # vim: set ft=zsh nowrap textwidth=0 :

@@ -1,17 +1,130 @@
-export PROXY_HOST="proxytz2"
-export PROXY_PORT="80"
-export PROXY_USER="harsh.gupta"
-export PROXY_PASS="LuckyKab00tar9#"
-export PROXY_PASS_E="LuckyKab00tar9%23"
+declare -gA PROXY_HOST
+declare -gA PROXY_PORT
+declare -gA PROXY_PROTO
+PROXY_HOST=(HTTP proxytz2 HTTPS proxytz2)
+PROXY_PORT=(HTTP 80 HTTPS 80)
+PROXY_PROTO=(HTTP http HTTPS http)
 
-export http_proxy="http://$PROXY_USER:$PROXY_PASS_E@$PROXY_HOST:$PROXY_PORT"
+export USE_HTTP_FOR_HTTPS=1
+export PROXY_USERNAME="harsh.gupta"
+export PROXY_PASSWORD="BilluRaja9#"
+export PROXY_PASSWORD_E="BilluRaja9%23"
+
+export http_proxy="http://$PROXY_USERNAME:$PROXY_PASSWORD_E@proxy:80"
+# export http_proxy=http://harsh.gupta:GhodaChand9%23@proxytz2:80
 export https_proxy=$http_proxy
 export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$http_proxy
 
-export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
-export NO_PROXY=$no_proxy
+# export no_proxy="localhost,127.0.0.1/8,::1,localaddress,.localdomain.com,.local,91.189.88.173 80,40.76.210.70"
+
+proxyauthstr() {
+  local stmt=""
+  local password="${PROXY_PASSWORD}"
+  if [ $1 = "y" ]; then
+    if [ $2 = "e" ]; then
+      password="${PROXY_PASSWORD_E}"
+    fi
+    stmt="${PROXY_USERNAME}:${password}@"
+  fi
+  echo "$stmt"
+}
+
+proxystr() {
+  local auth=$(proxyauthstr $1 $2)
+  local stmt=""
+  stmt="${PROXY_PROTO[$3]}://${auth}${PROXY_HOST[$3]}:${PROXY_PORT[$3]}"
+  echo "$stmt"
+}
+
+
+if exists npm; then # {{{
+  npmproxyon() {
+    local pstr=$(proxystr $1 $2 HTTP)
+    npm config set proxy "${pstr}"
+    if [[ ! -z "$USE_HTTP_FOR_HTTPS" && "$USE_HTTP_FOR_HTTPS" -eq 1 ]]; then
+      npm config set https-proxy "${pstr}"
+    else
+      pstr=$(proxystr $1 $2 HTTPS)
+      npm config set https-proxy "${pstr}"
+    fi
+    npm config set strict-ssl true
+  }
+
+  npmproxyoff() {
+    npm config delete proxy
+    npm config delete https-proxy
+    npm config set strict-ssl false
+  }
+fi
+# }}}
+
+# gsettings {{{
+if exists gsettings; then
+  sysproxyon() {
+    gsettings set org.gnome.system.proxy mode "manual"
+    gsettings set org.gnome.system.proxy.http host "$PROXY_HOST[HTTP]"
+    gsettings set org.gnome.system.proxy.http port "$PROXY_PORT[HTTP]"
+    gsettings set org.gnome.system.proxy.http authentication-password "$PROXY_PASSWORD"
+    gsettings set org.gnome.system.proxy.http authentication-user "$PROXY_USERNAME"
+    gsettings set org.gnome.system.proxy.http enabled true
+    gsettings set org.gnome.system.proxy.https host "$PROXY_HOST[HTTPS]"
+    gsettings set org.gnome.system.proxy.https port "$PROXY_PORT[HTTPS]"
+
+    if [ $1 = "y" ]; then
+      gsettings set org.gnome.system.proxy.http use-authentication true
+    else
+      gsettings set org.gnome.system.proxy.http use-authentication false
+    fi
+
+    if [[ $no_proxy =~ .*,.* ]]; then
+      IFS=',' read -r -A array <<< "$no_proxy"
+      _no_proxy=$(printf ",'%s'" "${array[@]}")
+      _no_proxy="[${_no_proxy:1}]"
+      gsettings set org.gnome.system.proxy ignore-hosts "${_no_proxy}"
+    elif [[ $no_proxy != "" ]]; then
+      gsettings set org.gnome.system.proxy ignore-hosts "['${no_proxy}']"
+    else
+      gsettings set org.gnome.system.proxy ignore-hosts "['localhost','127.0.0.1/8','::1','localaddress','.localdomain.com','.local']"
+    fi
+  }
+
+  sysproxyoff() {
+    gsettings set org.gnome.system.proxy.http enabled false
+    gsettings set org.gnome.system.proxy mode none
+  }
+
+  locdomain() {
+    if [[ $no_proxy =~ .*,.* ]]; then
+      IFS=',' read -r -A array <<< "$no_proxy"
+      _no_proxy=$(printf ",'%s'" "${array[@]}")
+      echo $_no_proxy
+    elif [[ $no_proxy != "" ]]; then
+      echo "elif"
+    else
+      echo "else"
+    fi
+  }
+fi
+# }}}
+
+
+
+
+aptproxyon() {
+
+}
+
+proxyon() {
+  if [ $(id -u) -ne 0 ]; then
+    echo "Permission denied. Must be run as root user."
+    exit 1
+  fi
+
+  local proxy="http://$PROXY_USER:$PROXY_PASS_E@$PROXY_HOST:$PROXY_PORT"
+}
+
 # export http_proxy=""
 # export https_proxy=""
 
-# vim: set ft=zsh nowrap textwidth=0 :
+# vim: set ft=zsh nowrap textwidth=0 foldmethod=marker foldlevel=0 :

@@ -1,0 +1,6 @@
+[http]
+  proxy=http://harsh.gupta:GhodaChand9#@proxytz2:80
+  sslVerify=false
+[https]
+  proxy=http://harsh.gupta:GhodaChand9#@proxytz2:80
+  sslVerify=false

@@ -1,3 +1,40 @@
+autoload -U add-zsh-hook
+autoload -Uz vcs_info
+autoload +X VCS_INFO_nvcsformats
+
+add-zsh-hook precmd vcs_info
+
+zstyle ':vcs_info:*' enable git svn hg
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:git*' git-revision true
+zstyle ':vcs_info:*' use-simple false
+
+# functions[VCS_INFO_nvcsformats]=${functions[VCS_INFO_nvcsformats]/local -a msgs/}
+# zstyle ':vcs_info:*' stagedstr '%{%F{green}%B%} ● %{%b%f%}'
+# zstyle ':vcs_info:*' unstagedstr '%{%F{red}%B%} ● %{%b%f%}'
+zstyle ':vcs_info:*' stagedstr '%{%F{green}%B%} staged%{%b%f%}'
+zstyle ':vcs_info:*' unstagedstr '%{%F{red}%B%} unstaged%{%b%f%}'
+# zstyle ':vcs_info:*' formats '%{%F{cyan}%}%45<…<%R%<</%{%f%}%{%F{green}%}(%25>…>%b%<<)%{%f%}%{%F{cyan}%}%S%{%f%}%c%u'
+# zstyle ':vcs_info:*' actionformats '%{%F{cyan}%}%45<…<%R%<</%{%f%}%{%F{red}%}(%a|%m)%{%f%}%{%F{cyan}%}%S%{%f%}%c%u'
+# zstyle ':vcs_info:*' nvcsformats '%{%F{cyan}%}%~%{%f%}'
+# zstyle ':vcs_info:git:*' patch-format '%10>…>%p%<< (%n applied)'
+
+# zstyle ':vcs_info:svn*' formats "%{%F{cyan}%}%R/ %{%F{red}%}[%b] (%a) %m%u%c%{%f%} %S"
+# zstyle ':vcs_info:svn*' actionformats "%{%F{cyan}%}%r/%{%F{red}%}(%b)%{%f%}%S"
+
+# zstyle ':vcs_info:git*' formats "%{%F{cyan}%}%R/ %{%F{magenta}%}[%b] (%a) %m%u%c%{%f%} %S"
+zstyle ':vcs_info:git*' formats "%R %{%F{magenta}%}[%s ±]%{%f%}%{%F{cyan}%}[%b]%{%f%}%u%c%m %S"
+zstyle ':vcs_info:git*' actionformats "%R %{%F{magenta}%}[%s ±]%{%f%}%{%F{cyan}%}[%b|%a]%{%f%}%u%c%m %S"
+
+zstyle ':vcs_info:svn*' formats "%R %{%F{red}%}[%s ⚡]%{%f%}%{%F{cyan}%}[%b]%{%f%}%u%c %S"
+zstyle ':vcs_info:svn*:*' branchformat "%b|%r"
+
+zstyle ':vcs_info:hg*' formats "%R [%s ☿] [%b] %c"
+# zstyle ':vcs_info:git*' actionformats "(%s|%a) %12.12i %c %u %b %m"
+
+zstyle ':vcs_info:*' nvcsformats '%d'
+
+# zstyle ':vcs_info:*+set-message:*' hooks home-path
 # Replace $HOME with ~
 function +vi-home-path() {
   hook_com[base]="$(echo ${hook_com[base]} | sed "s/${HOME:gs/\//\\\//}/~/" )"
@@ -21,33 +58,48 @@ function parse_git_dirty() {
   fi
 }
 
-# Show remote ref name and number of commits ahead-of or behind
-function +vi-git-st() {
-  local ahead behind remote
+zstyle ':vcs_info:git+set-message:*' hooks git-untracked git-num-commits git-remote
+function +vi-git-untracked() {
+  local hasuntracked
+
+  untracked=$(git status --porcelain | grep '??' 2> /dev/null | wc -l)
+  if [[ $untracked -ne 0 ]]; then
+    hook_com[staged]+=' untracked'
+  fi
+}
+
+# show number of commits ahead-of or behind
+function +vi-git-num-commits() {
+  local ahead behind
   local -a gitstatus
+
+  # for git prior to 1.7
+  # ahead=$(git rev-list origin/${hook_com[branch]}..HEAD | wc -l)
+  ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
+  (( $ahead )) && gitstatus+=( " ${c3}+${ahead}${c2} " )
+
+  # for git prior to 1.7
+  # behind=$(git rev-list HEAD..origin/${hook_com[branch]} | wc -l)
+  behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l)
+  (( $behind )) && gitstatus+=( " ${c4}-${behind}${c2} " )
+
+  hook_com[misc]+=${(j:/:)gitstatus}
+}
+
+# Show remote ref name
+function +vi-git-remote() {
+  local remote
 
   # Are we on a remote-tracking branch?
   remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} \
       --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
 
-  echo "${remote}"
-
   if [[ -n ${remote} ]] ; then
-      # for git prior to 1.7
-      # ahead=$(git rev-list origin/${hook_com[branch]}..HEAD | wc -l)
-      ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
-      (( $ahead )) && gitstatus+=( "${c3}+${ahead}${c2}" )
-
-      # for git prior to 1.7
-      # behind=$(git rev-list HEAD..origin/${hook_com[branch]} | wc -l)
-      behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l)
-      (( $behind )) && gitstatus+=( "${c4}-${behind}${c2}" )
-
-      echo "${hook_com[branch]} [${remote} ${(j:/:)gitstatus}] | ${behind}"
-      hook_com[branch]="${hook_com[branch]} [${remote} ${(j:/:)gitstatus}]"
+      hook_com[branch]="${hook_com[branch]} <- ${remote}"
   fi
 }
 
+zstyle ':vcs_info:git*+set-message:*' hooks git-stash
 # Show count of stashed changes
 function +vi-git-stash() {
   local -a stashes
@@ -58,45 +110,6 @@ function +vi-git-stash() {
   fi
 }
 
-autoload -U add-zsh-hook
-autoload -Uz vcs_info
-autoload +X VCS_INFO_nvcsformats
-
-add-zsh-hook precmd vcs_info
-
-# functions[VCS_INFO_nvcsformats]=${functions[VCS_INFO_nvcsformats]/local -a msgs/}
-# zstyle ':vcs_info:*' check-for-changes true
-# zstyle ':vcs_info:*' stagedstr '%{%F{green}%B%} ● %{%b%f%}'
-# zstyle ':vcs_info:*' unstagedstr '%{%F{red}%B%} ● %{%b%f%}'
-zstyle ':vcs_info:*' stagedstr '%{%F{green}%B%} staged%{%b%f%}'
-zstyle ':vcs_info:*' unstagedstr '%{%F{red}%B%} unstaged%{%b%f%}'
-# zstyle ':vcs_info:*' formats '%{%F{cyan}%}%45<…<%R%<</%{%f%}%{%F{green}%}(%25>…>%b%<<)%{%f%}%{%F{cyan}%}%S%{%f%}%c%u'
-# zstyle ':vcs_info:*' actionformats '%{%F{cyan}%}%45<…<%R%<</%{%f%}%{%F{red}%}(%a|%m)%{%f%}%{%F{cyan}%}%S%{%f%}%c%u'
-# zstyle ':vcs_info:*' nvcsformats '%{%F{cyan}%}%~%{%f%}'
-# zstyle ':vcs_info:git:*' patch-format '%10>…>%p%<< (%n applied)'
-
-zstyle ':vcs_info:*' enable git svn hg
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:git*:*' git-revision true
-zstyle ':vcs_info:*' use-simple false
-
-# zstyle ':vcs_info:svn*' formats "%{%F{cyan}%}%R/ %{%F{red}%}[%b] (%a) %m%u%c%{%f%} %S"
-# zstyle ':vcs_info:svn*' actionformats "%{%F{cyan}%}%r/%{%F{red}%}(%b)%{%f%}%S"
-
-# zstyle ':vcs_info:git*' formats "%{%F{cyan}%}%R/ %{%F{magenta}%}[%b] (%a) %m%u%c%{%f%} %S"
-zstyle ':vcs_info:git*' formats "%R %{%F{magenta}%}[%s ±]%{%f%}%{%F{cyan}%}[%b]%{%f%}%m%u%c %S"
-zstyle ':vcs_info:git*' actionformats "%R %{%F{magenta}%}[%s ±]%{%f%}%{%F{cyan}%}[%b|%a]%{%f%}%m%u%c %S"
-
-zstyle ':vcs_info:svn*' formats "%R %{%F{mred}%}[%s ⚡]%{%f%}%{%F{cyan}%}[%b%{%f%}]%c %S"
-zstyle ':vcs_info:svn*:*' branchformat "%b|%r"
-
-zstyle ':vcs_info:hg*' formats "%R [%s ☿] [%b] %c"
-# zstyle ':vcs_info:git*' actionformats "(%s|%a) %12.12i %c %u %b %m"
-
-zstyle ':vcs_info:*' nvcsformats '%~'
-
-zstyle ':vcs_info:*+set-message:*' hooks home-path
-zstyle ':vcs_info:git+set-message:*' hooks home-path git-st git-stash
 # zstyle ':vcs_info:git+post-backend:*' hooks git-remote-staged
 # function +vi-git-remote-staged() {
   # Show "unstaged" when changes are not staged or not committed

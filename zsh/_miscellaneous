@@ -31,5 +31,9 @@ print -Pn "\e]0; %n@%M: %~\a"
 
 autoload -U tetris
 
+if exists direnv; then
+  eval "$(direnv hook $SHELL)"
+fi
+
 # vim: set ft=zsh nowrap textwidth=0 :
 

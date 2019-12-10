@@ -1,0 +1,109 @@
+[push]
+  default = matching
+
+[merge]
+  defaultToUpstream = true
+  tool = vimdiff
+  conflictstyle = diff3
+
+[color]
+  diff = always
+
+[log]
+  decorate = short
+
+[mergetool]
+	prompt = false
+
+[mergetool "vimdiff"]
+  cmd = nvim -d -c 'norm ]c[c' \"$LOCAL\" \"$REMOTE\"
+
+[diff]
+  tool = vimdiff
+
+[difftool]
+  prompt = false
+
+[difftool "vimdiff"]
+  cmd = nvim -d -c 'norm ]c[c' \"$LOCAL\" \"$REMOTE\"
+
+; [difftool "diffpdf"]
+;   cmd = diffpdf \"$LOCAL\" \"$REMOTE\"
+
+[alias]
+  # pdfdiff = difftool --tool=diffpdf
+  vimdiff = difftool --tool=vimdiff
+  log1 = log --all --graph --decorate --pretty=oneline --abbrev-commit
+  log2 = log --all --graph --decorate=short --color --format=format:'%C(bold blue)%h%C(reset)%x09%x09%C(auto)%d%C(reset) %x09%x09%C(bold yellow)(%cr)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+  log3 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n'' %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+  log4 = log --all --graph --color --full-history --oneline --pretty=format:'%C(bold blue)%h%x09%C(auto)%d%x1b[0m%x20%s'
+  logx = log --all --graph --decorate=short --color --format=format:'%C(bold blue)%h%C(reset)+%C(dim black)(%cr)%C(reset)+%C(auto)%d%C(reset)++\n+++       %C(bold black)%an%C(reset)%C(black): %s%C(reset)'
+  log5 = !bash -c '"                                                                          \
+    while IFS=+ read -r hash time branch message; do                                          \
+      timelength=$(echo \"$time\" | sed -r \"s:[^ ][[]([0-9]{1,2}(;[0-9]{1,2})?)?m::g\");     \
+      timelength=$(echo \"16+${#time}-${#timelength}\" | bc);                                 \
+      printf \"%${timelength}s    %s %s %s\n\" \"$time\" \"$hash\" \"$branch\" \"$message\";  \
+    done < <(git logx && echo);"'
+  log6 = !bash -c '"                                                                          \
+    while IFS=+ read -r hash time branch message; do                                          \
+      timelength=$(echo \"$time\" | sed -r \"s:[^ ][[]([0-9]{1,2}(;[0-9]{1,2})?)?m::g\");     \
+      timelength=$(echo \"16+${#time}-${#timelength}\" | bc);                                 \
+      printf \"%${timelength}s    %s %s %s\n\" \"$time\" \"$hash\" \"$branch\" \"\";          \
+    done < <(git logx && echo);"'
+  log7 = log --all --graph --decorate=short --color --format=format:'%C(bold blue)%h%C(reset) %C(auto)%d%C(reset)\n         %C(black)[%cr]%C(reset)  %x09%C(black)%an: %s %C(reset)'
+  log8 = log --all --graph --decorate=short --color --format=format:'%C(bold blue)%h%C(reset) %x09%C(auto)%d%C(reset) %<(16,trunc)%C(bold black)%an%C(reset) %s\n%x09%x09%C(black) [%ar on %cd]%C(reset)' --date=format:'%A %d %B %Y %H:%M:%S'
+  vtree = "!echo; git log5; echo;"
+  stree = "!echo; git log6; echo;"
+  tree = "!echo; git log8; echo;"
+
+  root = rev-parse --show-toplevel
+  roothash = !bash -c '"                                                    \
+    git log --pretty=oneline --no-color                                     \
+    | tail -1                                                               \
+    | awk '{print $1}';"'
+
+  deets = !bash -c '"echo  \"Repository $(git root):$(git branchname)\";"'
+
+  pull-submodules = submodule foreach git pull
+  status-submodules = submodule foreach git status -uno
+  branchname = rev-parse --abbrev-ref HEAD
+  count = rev-list --count HEAD
+  check = fetch --dry-run -v
+  unstage = reset HEAD --
+  add-push = remote set-url --add --push
+  add-push-origin = !git add-push origin
+  ls = ls-tree -r HEAD --name-only
+  st = status
+  co = checkout
+  cm = commit
+  cl = clone
+  cl1 = clone --depth=1
+  # sp = !git status-pull
+  # cn = !git commit-now
+  # cnp = !git commit-now-push
+
+[core]
+  editor = nvim
+  excludesfile = $HOME/Documents/softwares/.dotfiles/git/.gituser
+
+[merge "ours"]
+  driver = true
+
+[status]
+  submoduleSummary = true
+
+[http]
+  postBuffer = 1048576000
+  ; proxy=http://harsh.gupta:GhodaChand9%23@proxytz2:80
+  sslVerify=false
+
+[https]
+  postBuffer = 1048576000
+  proxy=http://harsh.gupta:BilluRaja9%23@proxytz2:80
+  sslVerify=true
+
+[include]
+  path = $HOME/Documents/softwares/.dotfiles/git/.gituser
+
+[credential]
+  helper = cache --timeout=3600

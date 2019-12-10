@@ -1,0 +1,7 @@
+{
+  "singleQuote": true,
+  "semi": false,
+  "printWidth": 79,
+  "tabWidth": 2,
+  "_vim_": { "modeline": "/* vim: set ft=json : */" }
+}

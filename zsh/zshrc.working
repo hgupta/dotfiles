@@ -1,0 +1,57 @@
+function source_if_exists() {
+  if [[ -s $1 ]]; then
+    source $1
+  fi
+}
+
+source_if_exists $HOME/.zprofile
+
+source_if_exists $HOME/.zsh/basics
+source_if_exists $HOME/.zsh/bindings
+source_if_exists $HOME/.zsh/autocomplete
+source_if_exists $HOME/.zsh/vcs
+source_if_exists $HOME/.zsh/aliases
+source_if_exists $HOME/.zsh/functions
+source_if_exists $HOME/.zsh/languages
+source_if_exists $HOME/.zsh/proxy
+source_if_exists $HOME/.zsh/prompt
+source_if_exists $HOME/.zsh/zsh.local
+
+# function git_prompt_info() {
+#   echo $(git symbolic-ref --short HEAD)
+# }
+
+# function git_status() {
+#   git_status=$(git status --porcelain -b -unormal --ignore-submodules=all)
+#   output=""
+#   if $(echo "$git_status" | grep '^UU ' &> /dev/null); then
+#     output="$output%{$fg[blue]%}°"
+#   fi
+#   if $(echo "$git_status" | grep -E '^(.M|R.|C.|.T) ' &> /dev/null); then
+#     output="$output%{$fg[yellow]%}!"
+#   fi
+#   if $(echo "$git_status" | grep '^A. ' &> /dev/null); then
+#     output="$output%{$fg[green]%}+"
+#   fi
+#   if $(echo "$git_status" | grep -E '^(D.|.D) ' &> /dev/null); then
+#     output="$output%{$fg[red]%}-"
+#   fi
+#   if $(echo "$git_status" | grep '^?? ' &> /dev/null); then
+#     output="$output%{$fg[white]%}*"
+#   fi
+#   if $(echo "$git_status" | grep '^## .*ahead' &> /dev/null); then
+#     output="$output%F{156}⬈"
+#   fi
+#   echo $output
+# }
+
+# function my_git_prompt() {
+#   tester=$(git rev-parse --git-dir 2> /dev/null) || return
+#   if [ ! -z $git_status ]
+#      then
+#      git_status=" $git_status"
+#   fi
+#   echo "%{$fg[white]%}‹%B%F{136} $(git_prompt_info)$(git_status) %{$fg[white]%}›"
+# }
+
+# vim: set ft=zsh nowrap textwidth=0 :
