@@ -92,18 +92,18 @@
 [status]
   submoduleSummary = true
 
-[http]
-  postBuffer = 1048576000
-  ; proxy=http://harsh.gupta:GhodaChand9%23@proxytz2:80
-  sslVerify=false
+; [http]
+;   postBuffer = 1048576000
+;   ; proxy=http://proxy:80
+;   sslVerify=false
 
-[https]
-  postBuffer = 1048576000
-  proxy=http://harsh.gupta:BilluRaja9%23@proxytz2:80
-  sslVerify=true
+; [https]
+;   postBuffer = 1048576000
+;   ; proxy=http://proxy:80
+;   sslVerify=false
 
 [include]
-  path = $HOME/Documents/softwares/.dotfiles/git/.gituser
+  path = /home/ntl/Documents/softwares/.dotfiles/git/.gituser
 
 [credential]
   helper = cache --timeout=3600

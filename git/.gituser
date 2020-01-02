@@ -1,6 +1,11 @@
 [http]
-  proxy=http://harsh.gupta:GhodaChand9#@proxytz2:80
+  postBuffer = 1048576000
+  ; proxy=http://proxy:80
   sslVerify=false
+
 [https]
-  proxy=http://harsh.gupta:GhodaChand9#@proxytz2:80
+  postBuffer = 1048576000
+  ; proxy=http://proxy:80
   sslVerify=false
+
+; vim: ft=gitconfig
