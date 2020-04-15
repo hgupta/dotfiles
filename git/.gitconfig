@@ -84,7 +84,7 @@
 
 [core]
   editor = nvim
-  excludesfile = $HOME/Documents/softwares/.dotfiles/git/.gituser
+;   excludesfile = $HOME/.harshgupta/.gituser
 
 [merge "ours"]
   driver = true
@@ -103,7 +103,7 @@
 ;   sslVerify=false
 
 [include]
-  path = /home/ntl/Documents/softwares/.dotfiles/git/.gituser
+  path = $HOME/.harshgupta/.gituser
 
 [credential]
   helper = cache --timeout=3600

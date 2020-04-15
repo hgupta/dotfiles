@@ -1,0 +1,59 @@
+### Needed for a pretty prompt
+setopt prompt_subst # Enables additional prompt extentions
+autoload -U colors && colors    # Enables colours
+
+# Detects the VCS and shows the appropriate sign
+function prompt_char {
+  # git branch > /dev/null 2>/dev/null && echo '±' && return
+  # git branch > /dev/null 2>/dev/null && echo "%(?.%{$fg_bold[green]%}.%{$fg_bold[red]%})±" && return
+
+  # hg root > /dev/null 2>/dev/null && echo '☿' && return
+  # hg root > /dev/null 2>/dev/null && echo "%(?.%{$fg_bold[green]%}.%{$fg_bold[red]%})☿" && return
+
+  # svn info > /dev/null 2>/dev/null && echo '%{%F{red}%} ⚡ %{%f%}' && return
+  # svn info > /dev/null 2>/dev/null && echo "%(?.%{$fg_bold[green]%}.%{$fg_bold[red]%})⚡" && return
+
+  echo "%(?.%{$fg_bold[green]%}.%{$fg_bold[red]%})%(!.#.λ) "
+  # echo '%#'
+}
+
+function conda_env() {
+  if [ ! -z $CONDA_DEFAULT_ENV ]; then
+    if [[ $CONDA_DEFAULT_ENV != 'base' ]] then
+      echo "%{%F{yellow}($CONDA_DEFAULT_ENV)%}%{%f%} "
+    else
+      echo ""
+    fi
+  elif [ ! -z $VIRTUAL_ENV ]; then
+    echo "%{%F{yellow}(`basename $VIRTUAL_ENV`)%}%{%f%} "
+  fi
+}
+
+function has_docker() {
+  if groups ${USER} | grep &>/dev/null docker; then
+    echo "%{%F{blue}(docker)%}%{%f%} "
+  fi
+}
+
+# PROMPT="
+#  %~ ${vcs_info_msg_0_}
+#  $(lambda) %{$reset_color%}"
+
+# PS1='
+ # %{%F{cyan}%}[%n]%{%f%}%{%F{magenta}%}[%m]%{%f%}:${vcs_info_msg_0_}%{%B%}%(!.#.>)%{%b%E%}
+ # $(lambda) %{$reset_color%}'
+
+PROMPT='
+ ${vcs_info_msg_0_}
+ $(conda_env)$(prompt_char)%{$reset_color%}'
+
+# RPROMPT='${vcs_info_msg_1_}'
+# RPROMPT='$(vi_mode_prompt_info)'
+
+# prompt for loops
+PROMPT2='  %{$fg_bold[blue]%_%}$reset > '
+
+# prompt for selection
+PROMPT3='  %{$fg_bold[blue]…%}$reset > '
+
+# vim: set ft=zsh nowrap textwidth=0 :

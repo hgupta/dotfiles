@@ -1,3 +1,4 @@
+# zmodload zsh/zprof
 ### Basic Settings {{{
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -113,8 +114,11 @@ setopt bang_hist
 # }}}
 
 ### Autocomplete {{{
-autoload -U compinit
-compinit
+autoload -Uz compinit
+for dump in ./.zcompdump(N.mh+24); do # dump once every 24 hours
+  compinit
+done
+compinit -C
 zmodload -i zsh/complist
 setopt hash_list_all
 setopt completealiases
@@ -317,7 +321,6 @@ else:
     print('yes')
 sys.exit(0)
 "
-    echo "second"
     if [ -f $arg ]; then
       cat $arg | python -c $cmd
     elif [[ $arg =~ ^https?:\/\/ ]]; then
@@ -330,31 +333,31 @@ sys.exit(0)
 
 ghget () {
   URL=$(trim $1)
-  DIR=$(trim $2)
+  # DIR=$(trim $2)
 
   USER=$(echo $URL | tr "/" " " | awk '{ print $1 }')
   REPO=$(echo $URL | tr "/" " " | awk '{ print $2 }')
 
-  if [ "$#" -e 2 ]; then
-    mkd "$HOME/$DIR/github.com/$USER"
-  fi
+  # if [ "$#" -e 2 ]; then
+  #   mkd "$HOME/$DIR/github.com/$USER"
+  # fi
 
   git clone "https://github.com/$URL"
   cd $REPO
 }
 
-ghcodes () {
-  ghget $@ 'codes'
-  # USER=$(echo $@ | tr "/" " " | awk '{ print $1 }')
-  # REPO=$(echo $@ | tr "/" " " | awk '{ print $2 }')
-  # mkd "$HOME/codes/github.com/$USER"
-  # git clone "https://github.com/$@"
-  # cd $REPO
-}
+# ghcodes () {
+#   ghget $@ 'codes'
+#   # USER=$(echo $@ | tr "/" " " | awk '{ print $1 }')
+#   # REPO=$(echo $@ | tr "/" " " | awk '{ print $2 }')
+#   # mkd "$HOME/codes/github.com/$USER"
+#   # git clone "https://github.com/$@"
+#   # cd $REPO
+# }
 
-ghsoft () {
-  ghget $@ 'softwares'
-}
+# ghsoft () {
+#   ghget $@ 'softwares'
+# }
 
 # colorslist() {
   # for code in {000..255};
@@ -434,7 +437,7 @@ alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-
 # alias vanilla-ui=". $HOME/Documents/softwares/.dotfiles/boilerplates/vanilla-ui/setup.sh "
 
 # run previous command with sudo
-alias please='sudo $(fc -ln -1)'
+alias really='sudo $(fc -ln -1)'
 
 alias vimdiff='nvim -d -c "norm ]c[c"'  # jump to first difference
 
@@ -443,29 +446,45 @@ alias vi="vi -c 'set nocp nu rnu tabstop=2 shiftwidth=2 softtabstop=2 shiftround
 
 ### Languages {{{
 ## Node.js {{{
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# export PATH="/home/ntl/.nvm/versions/node/v10.15.3/bin:$PATH"
+nvm() {
+  unset -f nvm
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  nvm "$@"
+}
+
+node() {
+  unset -f nvm
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  node "$@"
+}
+
+npm() {
+  unset -f nvm
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  npm "$@"
+}
 # }}}
 
 ## Conda (Miniconda) {{{
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/ntl/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/ntl/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/ntl/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "$HOME/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/ntl/miniconda3/bin:$PATH"
+        export PATH="$HOME/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
-export PATH="/home/ntl/miniconda3/bin:$PATH"
-conda config --set changeps1 False
-conda config --set auto_activate_base False
+# export PATH="$HOME/miniconda3/bin:$PATH"
+# conda config --set changeps1 False
+# conda config --set auto_activate_base False
 # <<< conda initialize <<<
 # }}}
 ## pyenv {{{
@@ -478,6 +497,10 @@ conda config --set auto_activate_base False
 ## rbenv {{{
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
+# rbenv() {
+#   eval "$(command rbenv init -)"
+#   rbenv "$@"
+# }
 # }}}
 # }}}
 
@@ -663,13 +686,13 @@ function +vi-git-stash() {
 # zstyle ':vcs_info:git*' actionformats "%s  %r/%S %b %m%u%c "
 # }}}
 
-function source_if_exists() {
-  if [[ -s $1 ]]; then
-    source $1
-  fi
-}
+# function source_if_exists() {
+#   if [[ -s $1 ]]; then
+#     source $1
+#   fi
+# }
 
-source_if_exists $HOME/.zprofile
+# source_if_exists $HOME/.zprofile
 # source_if_exists $HOME/.zsh/_basics
 # source_if_exists $HOME/.zsh/_keybindings
 # source_if_exists $HOME/.zsh/_history
@@ -677,10 +700,12 @@ source_if_exists $HOME/.zprofile
 # source_if_exists $HOME/.zsh/_aliases
 # source_if_exists $HOME/.zsh/_functions
 # source_if_exists $HOME/.zsh/_languages
-source_if_exists $HOME/.zsh/_proxy
+# source_if_exists $HOME/.zsh/_proxy
 # source_if_exists $HOME/.zsh/_vcs
 # source_if_exists $HOME/.zsh/_miscellaneous
-source_if_exists $HOME/.zsh/_prompt
-source_if_exists $HOME/.zsh/zsh.local
+[ -s $HOME/.harshgupta/.zsh-prompt ] && . $HOME/harshgupta/.zsh-prompt
+# source_if_exists $HOME/.zsh-prompt
+# source_if_exists $HOME/.zsh/zsh.local
 
+# zprof
 # vim: set ft=zsh nowrap textwidth=0 foldlevel=0 foldmethod=marker :

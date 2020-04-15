@@ -12,25 +12,25 @@ autocmd BufNewFile,BufRead  * try
 autocmd BufNewFile,BufRead  *   set encoding=utf-8
 autocmd BufNewFile,BufRead  * endtry
 
-function! SetPythonExe(pypath, pyversion, shell_error)
-  if a:shell_error == 0
-    if a:pyversion =~ 'Python 3'
-      let g:python3_host_prog = a:pypath
-    elseif a:pyversion =~ 'Python 2'
-      let g:python2_host_prog = a:pypath
-    endif
-  endif
-endfunction
+" function! SetPythonExe(pypath, pyversion, shell_error)
+"   if a:shell_error == 0
+"     if a:pyversion =~ 'Python 3'
+"       let g:python3_host_prog = a:pypath
+"     elseif a:pyversion =~ 'Python 2'
+"       let g:python2_host_prog = a:pypath
+"     endif
+"   endif
+" endfunction
 
-if exists('$CONDA_PREFIX')
-  let b:pypath = substitute($CONDA_PREFIX, '\n', '', '') . '/bin/python'
-  let b:pyversion = system(b:pypath . ' --version')
-  call SetPythonExe(b:pypath, b:pyversion, v:shell_error)
-elseif exists('$CONDA_PYTHON_EXE')
-  let b:pypath = substitute($CONDA_PYTHON_EXE, '\n', '', '')
-  let b:pyversion = system(b:pypath . ' --version')
-  call SetPythonExe(b:pypath, b:pyversion, v:shell_error)
-endif
+" if exists('$CONDA_PREFIX')
+"   let b:pypath = substitute($CONDA_PREFIX, '\n', '', '') . '/bin/python'
+"   let b:pyversion = system(b:pypath . ' --version')
+"   call SetPythonExe(b:pypath, b:pyversion, v:shell_error)
+" elseif exists('$CONDA_PYTHON_EXE')
+"   let b:pypath = substitute($CONDA_PYTHON_EXE, '\n', '', '')
+"   let b:pyversion = system(b:pypath . ' --version')
+"   call SetPythonExe(b:pypath, b:pyversion, v:shell_error)
+" endif
 
 "" Plugins {{{
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -49,12 +49,13 @@ call plug#begin('~/.config/nvim/plugged')
 " endif
 
 Plug 'elzr/vim-json', { 'for': 'json'}
-Plug 'digitaltoad/vim-pug'
-Plug 'mattn/emmet-vim'
-Plug 'pangloss/vim-javascript'
+Plug 'digitaltoad/vim-pug', { 'for': 'pug' }
+Plug 'mattn/emmet-vim', { 'for': ['html', 'pug'] }
+Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'gko/vim-coloresque', { 'for': ['css', 'less', 'scss'] }
 
 Plug 'sgur/vim-editorconfig'
-Plug 'dense-analysis/ale'
+Plug 'dense-analysis/ale', { 'for': ['javascript', 'python'] }
 
 Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
@@ -64,6 +65,8 @@ Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 
 Plug 'mhinz/vim-signify'
 Plug 'airblade/vim-gitgutter'
+
+Plug 'pacha/vem-tabline'
 
 " Plug 'rakr/vim-one'
 Plug 'sainnhe/gruvbox-material'
@@ -580,12 +583,14 @@ endif
 " }}}
 
 "" Buffer handling {{{
-nnoremap <S-Left> :bp<CR>
-nnoremap <S-Right> :bn<CR>
+nnoremap [b :bp<CR>
+nnoremap ]b :bn<CR>
+nnoremap <S-Left> :tabp<CR>
+nnoremap <S-Right> :tabn<CR>
 nnoremap <leader>d :bd<CR>
 nnoremap <leader><leader>d :bd!<CR>
 nnoremap <leader><leader>b :buffers<CR>
-nnoremap <leader>b :b<Space>
+nnoremap <leader>b :ls<CR>:b<Space>
 nnoremap <leader>o :edit<Space>
 nnoremap <leader>n :enew<CR>
 nnoremap <leader><leader>n :new<CR>
@@ -623,8 +628,8 @@ endif
 " }}}
 
 "" Editing and sourcing $MYVIMRC {{{
-nnoremap <leader>ev :tabedit $MYVIMRC<CR>
-nnoremap <leader>vs :source $MYVIMRC<CR>
+nnoremap <space>ev :tabedit $MYVIMRC<CR>
+nnoremap <space>vs :source $MYVIMRC<CR>
 
 " if has('autocmd')
 "   augroup vimrc_config
@@ -639,6 +644,13 @@ set clipboard=unnamed
 vnoremap <leader>y "*y :let @+=@*<CR>
 nnoremap <leader>p "*p
 inoremap <leader><leader>p <ESC>"*pi<Right>
+" }}}
+
+"" Insert datetime {{{
+nnoremap <C-i><C-d> "=strftime('%Y-%m-%d')<CR>p
+inoremap <C-i><C-d> <C-r>=strftime('%Y-%m-%d')<CR>
+nnoremap <C-i><C-y> "=strftime('%A')<CR>p
+inoremap <C-i><C-y> <C-r>=strftime('%A')<CR>
 " }}}
 " }}}
 
@@ -757,18 +769,18 @@ if IsPlugInstalled('tabular')
   vmap <Leader>a= :Tabularize /=<CR>
   nmap <Leader>a: :Tabularize /:\zs<CR>
   vmap <Leader>a: :Tabularize /:\zs<CR>
-endif
 
-function! s:align()
-  let p = '^\s*|\s.*\s|\s*$'
-  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
-    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
-    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
-    Tabularize/|/l1
-    normal! 0
-    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
-  endif
-endfunction
+  function! s:align()
+    let p = '^\s*|\s.*\s|\s*$'
+    if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+      let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+      let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+      Tabularize/|/l1
+      normal! 0
+      call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+    endif
+  endfunction
+endif
 
 inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 " }}}
@@ -777,6 +789,7 @@ inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 if IsPlugInstalled('ale')
   let g:ale_linters = {
         \ 'javascript': ['eslint'],
+        \ 'python': ['flake8'],
         \ }
 
   let g:ale_fixers = {
@@ -795,33 +808,33 @@ if IsPlugInstalled('ale')
   " let g:ale_warn_about_trailing_whitespace = 1
   " let g:ale_fix_on_save = 1
   let g:ale_sign_column_always = 1
-  let g:ale_sign_error = '>>'
-  " let g:ale_sign_error = '❌'
+  " let g:ale_sign_error = '>>'
+  let g:ale_sign_error = '❌'
   " let g:ale_sign_error = '💣'
-  let g:ale_sign_warning = '--'
-  " let g:ale_sign_warning = '⚠️'
+  " let g:ale_sign_warning = '--'
+  let g:ale_sign_warning = '⚠️'
   " let g:ale_sign_warning = '🚩'
-  " let g:ale_statusline_format = ['💣 %d', '🚩 %d', '']
+  let g:ale_statusline_format = ['💣 %d', '🚩 %d', '']
 
-  " let g:ale_echo_msg_error_str = 'E'
-  " let g:ale_echo_msg_error_str = '💣'
-  " let g:ale_echo_msg_warning_str = 'W'
-  " let g:ale_echo_msg_warning_str = '🚩'
-  " let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_echo_msg_error_str = 'E'
+  let g:ale_echo_msg_error_str = '💣'
+  let g:ale_echo_msg_warning_str = 'W'
+  let g:ale_echo_msg_warning_str = '🚩'
+  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
   " let g:ale_lint_on_save = 1
   " let g:ale_lint_on_text_changed = 'never'
-  " let g:ale_lint_on_insert_leave = 0
+  let g:ale_lint_on_insert_leave = 1
   " let g:ale_lint_on_enter = 0
 
   " let g:ale_set_loclist = 0
   " let g:ale_set_quickfix = 1
 
   " Do not lint or fix minified files.
-  " let g:ale_pattern_options = {
-  "       \ '\.min\.js$': {'ale_linters': [], 'ale_fixers': []},
-  "       \ '\.min\.css$': {'ale_linters': [], 'ale_fixers': []},
-  "       \}
+  let g:ale_pattern_options = {
+  \ '\.min\.js$': {'ale_linters': [], 'ale_fixers': []},
+  \ '\.min\.css$': {'ale_linters': [], 'ale_fixers': []},
+  \}
 
   " Show 5 lines of errors (default: 10)
   " let g:ale_list_window_size = 5
@@ -1030,7 +1043,8 @@ if has('statusline')
     endif
     let stl .= Format(active, mode_data[1], ' ' . toupper(mdmode) . ' ')
 
-    let stl .= Format(active, 'SLFileName', winwidth(0) < 70 ? ' %<%t ' : ' %<%F ')
+    " let stl .= Format(active, 'SLFileName', winwidth(0) < 70 ? ' %<%t ' : ' %<%F ')
+    let stl .= Format(active, 'SLFileName', ' %<%t ')
     let stl .= Format(active, 'SLFileNameB', &modified != 0? '[+]' : '')
     let stl .= Format(active, 'SLFileNameB', &readonly || !&modifiable ? '!!%r%h%w' : '')
 
@@ -1044,13 +1058,26 @@ if has('statusline')
 
     " file info
     if winwidth(0) > 70
-      let finfo = ' ' . &fileformat
+      let indent_size = &softtabstop
+      if &expandtab
+        let indent_type = 'spaces'
+      else
+        if &softtabstop % &tabstop == 0
+          let indent_type = 'tabs'
+        else
+          let indent_type = 'tabs+spaces'
+        endif
+      endif
+      let s:newline_labels = {'unix': 'LF', 'mac': 'CR', 'dos': 'CRLF', '--': '--'}
+      " let finfo = ' ' . &fileformat
+      let finfo = indent_type . ':' . indent_size
+      let finfo .= ' | ' . get(s:newline_labels, &fileformat, '--')
       let finfo .= ' | '
       let finfo .= &fenc != '' ? &fenc : &enc != '' ? &enc : 'no enc'
       let finfo .= ' |'
       let stl .= Format(active, 'SLFileInfo', finfo)
     endif
-    let stl .= Format(active, 'SLFileInfo', ' ' . (strlen(&ft) ? &ft : 'no ft') . ' ')
+    let stl .= Format(active, 'SLFileInfo', ' ' . (strlen(&ft) ? &ft : '--') . ' ')
 
     " column number
     " let stl .= Format(active, 'SLColumn', ' [%02l/%02L] %02c, %02v ')
