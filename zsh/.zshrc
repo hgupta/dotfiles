@@ -446,26 +446,27 @@ alias vi="vi -c 'set nocp nu rnu tabstop=2 shiftwidth=2 softtabstop=2 shiftround
 
 ### Languages {{{
 ## Node.js {{{
+# https://gist.github.com/QinMing/364774610afc0e06cc223b467abe83c0
 nvm() {
   unset -f nvm
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
   nvm "$@"
 }
 
-node() {
-  unset -f nvm
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  node "$@"
-}
+# node() {
+#   unset -f nvm
+#   export NVM_DIR="$HOME/.nvm"
+#   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+#   node "$@"
+# }
 
-npm() {
-  unset -f nvm
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  npm "$@"
-}
+# npm() {
+#   unset -f nvm
+#   export NVM_DIR="$HOME/.nvm"
+#   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+#   npm "$@"
+# }
 # }}}
 
 ## Conda (Miniconda) {{{
@@ -703,7 +704,7 @@ function +vi-git-stash() {
 # source_if_exists $HOME/.zsh/_proxy
 # source_if_exists $HOME/.zsh/_vcs
 # source_if_exists $HOME/.zsh/_miscellaneous
-[ -s $HOME/.harshgupta/.zsh-prompt ] && . $HOME/harshgupta/.zsh-prompt
+[ -s $HOME/.harshgupta/.zsh-prompt ] && . $HOME/.harshgupta/.zsh-prompt
 # source_if_exists $HOME/.zsh-prompt
 # source_if_exists $HOME/.zsh/zsh.local
 
