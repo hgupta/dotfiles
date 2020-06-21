@@ -446,26 +446,37 @@ alias vi="vi -c 'set nocp nu rnu tabstop=2 shiftwidth=2 softtabstop=2 shiftround
 
 ### Languages {{{
 ## Node.js {{{
-# https://gist.github.com/QinMing/364774610afc0e06cc223b467abe83c0
-nvm() {
-  unset -f nvm
+
+# https://www.growingwiththeweb.com/2018/01/slow-nvm-init.html
+# Defer initialization of nvm until nvm, node or a node-dependent command is
+# run. Ensure this block is only run once if .bashrc gets sourced multiple times
+# by checking whether __init_nvm is a function.
+if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! "$(type -w __init_nvm)" = function ]; then
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-  nvm "$@"
-}
+  # [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+  declare -a __node_commands=('nvm' 'node' 'npm' 'yarn')
+  function __init_nvm() {
+    for i in "${__node_commands[@]}"; do unalias $i; done
+    . "$NVM_DIR"/nvm.sh
+    unset __node_commands
+    unset -f __init_nvm
+  }
+  for i in "${__node_commands[@]}"; do alias $i='__init_nvm && '$i; done
+fi
+
+# https://gist.github.com/QinMing/364774610afc0e06cc223b467abe83c0
+# nvm() {
+#   unset -f nvm
+#   export NVM_DIR="$HOME/.nvm"
+#   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+#   nvm "$@"
+# }
 
 # node() {
 #   unset -f nvm
 #   export NVM_DIR="$HOME/.nvm"
 #   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 #   node "$@"
-# }
-
-# npm() {
-#   unset -f nvm
-#   export NVM_DIR="$HOME/.nvm"
-#   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-#   npm "$@"
 # }
 # }}}
 
