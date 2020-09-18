@@ -4,7 +4,7 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
-export TERM=xterm-256color tmux
+export TERM=xterm-256color
 
 export PATH="$HOME/neovim/bin:$PATH"
 export EDITOR="nvim"
@@ -447,22 +447,27 @@ alias vi="vi -c 'set nocp nu rnu tabstop=2 shiftwidth=2 softtabstop=2 shiftround
 ### Languages {{{
 ## Node.js {{{
 
+# https://github.com/tj/n
+[ ! -d "$HOME/.n" ] && mkdir "$HOME/.n"
+export N_PREFIX="$HOME/.n"
+export PATH="$HOME/.n/bin:$PATH"
+
 # https://www.growingwiththeweb.com/2018/01/slow-nvm-init.html
 # Defer initialization of nvm until nvm, node or a node-dependent command is
 # run. Ensure this block is only run once if .bashrc gets sourced multiple times
 # by checking whether __init_nvm is a function.
-if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! "$(type -w __init_nvm)" = function ]; then
-  export NVM_DIR="$HOME/.nvm"
-  # [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  declare -a __node_commands=('nvm' 'node' 'npm' 'yarn')
-  function __init_nvm() {
-    for i in "${__node_commands[@]}"; do unalias $i; done
-    . "$NVM_DIR"/nvm.sh
-    unset __node_commands
-    unset -f __init_nvm
-  }
-  for i in "${__node_commands[@]}"; do alias $i='__init_nvm && '$i; done
-fi
+# if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! "$(type -w __init_nvm)" = function ]; then
+#   export NVM_DIR="$HOME/.nvm"
+#   # [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+#   declare -a __node_commands=('nvm' 'node' 'npm' 'yarn')
+#   function __init_nvm() {
+#     for i in "${__node_commands[@]}"; do unalias $i; done
+#     . "$NVM_DIR"/nvm.sh
+#     unset __node_commands
+#     unset -f __init_nvm
+#   }
+#   for i in "${__node_commands[@]}"; do alias $i='__init_nvm && '$i; done
+# fi
 
 # https://gist.github.com/QinMing/364774610afc0e06cc223b467abe83c0
 # nvm() {
@@ -521,7 +526,7 @@ watch=all                       # watch all logins
 logcheck=30                     # every 30 seconds
 WATCHFMT="%n from %M has %a tty%l at %T %W"
 
-setopt auto_cd  # if command is a path, cd into it
+unsetopt auto_cd  # if command is a path, cd into it
 cdpath=($HOME/Documents;)
 setopt auto_remove_slash
 setopt chase_links
@@ -698,26 +703,7 @@ function +vi-git-stash() {
 # zstyle ':vcs_info:git*' actionformats "%s  %r/%S %b %m%u%c "
 # }}}
 
-# function source_if_exists() {
-#   if [[ -s $1 ]]; then
-#     source $1
-#   fi
-# }
-
-# source_if_exists $HOME/.zprofile
-# source_if_exists $HOME/.zsh/_basics
-# source_if_exists $HOME/.zsh/_keybindings
-# source_if_exists $HOME/.zsh/_history
-# source_if_exists $HOME/.zsh/_autocomplete
-# source_if_exists $HOME/.zsh/_aliases
-# source_if_exists $HOME/.zsh/_functions
-# source_if_exists $HOME/.zsh/_languages
-# source_if_exists $HOME/.zsh/_proxy
-# source_if_exists $HOME/.zsh/_vcs
-# source_if_exists $HOME/.zsh/_miscellaneous
 [ -s $HOME/.harshgupta/.zsh-prompt ] && . $HOME/.harshgupta/.zsh-prompt
-# source_if_exists $HOME/.zsh-prompt
-# source_if_exists $HOME/.zsh/zsh.local
 
 # zprof
 # vim: set ft=zsh nowrap textwidth=0 foldlevel=0 foldmethod=marker :
