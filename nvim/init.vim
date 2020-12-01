@@ -2,7 +2,7 @@
 
 """ editing & sourcing vimrc {{{
 if !exists('$MYVIMRC')
-  let $MYVIMRC = '$HOME/.config/nvim/init.vim'
+  let $MYVIMRC = stdpath('config') . '/init.vim'
 endif
 nnoremap <space>ev :tabedit $MYVIMRC<CR>
 nnoremap <space>vs :source $MYVIMRC<CR>
@@ -32,13 +32,16 @@ if has('nvim')
 endif
 
 """ plugins {{{
-if empty(glob('~/.config/nvim/autoload/plug.vim'))
-  silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall
+let g:plug_path = stdpath('config') . '/autoload/plug.vim'
+let g:plugged_path = stdpath('config') . '/plugged'
+
+" if empty(glob('~/.config/nvim/autoload/plug.vim'))
+if empty(glob(g:plug_path))
+  execute '!curl -fLo ' . g:plug_path . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin(g:plugged_path)
 " if exists('g:python3_host_prog') || exists('g:python2_host_prog')
 "   Plug 'ncm2/ncm2'
 "   Plug 'roxma/nvim-yarp'
@@ -185,14 +188,14 @@ highlight OverLength ctermbg=124 ctermfg=white
 " Show column when reached at 72 and 79
 " let &colorcolumn='72,79'
 
-function! SetColumnAlerts(col)
+function! SetColumnAlerts()
   syntax match AlertLength /\%72v/
-  exe 'syntax match OverLength /\%' . a:col . 'v/'
+  syntax match OverLength /\%79v/
   call matchadd('AlertLength', '\%72v', 100)
-  call matchadd('OverLength', '\%'. a:col . 'v', 100)
+  call matchadd('OverLength', '\%79v', 100)
 endfunction
 
-autocmd FileType * :call SetColumnAlerts(79)
+autocmd FileType * :call SetColumnAlerts()
 "" }}}
 
 "" Cursorline {{{
@@ -318,6 +321,13 @@ nnoremap ]b :bn<CR>
 nnoremap [t :tabp<CR>
 nnoremap ]t :tabn<CR>
 "" }}}
+
+"" splits {{{
+nnoremap <C-Left> <C-W><C-H>
+nnoremap <C-Down> <C-W><C-J>
+nnoremap <C-Up> <C-W><C-K>
+nnoremap <C-Right> <C-W><C-L>
+"" }}}
 "" }}}
 
 "" add empty line without going into insert mode {{{
@@ -403,7 +413,6 @@ if has('autocmd')
     autocmd FileType python setlocal commentstring=#\ %s
     autocmd FileType python setlocal foldmethod=indent
     autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType python,py :call SetColumnAlerts(80)
   augroup END
   " }}}
 
@@ -491,9 +500,9 @@ if IsPlugInstalled('tabular')  " {{{
       call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
     endif
   endfunction
-endif
 
-inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+  inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+endif
 " }}}
 
 if IsPlugInstalled('ale')  " {{{
